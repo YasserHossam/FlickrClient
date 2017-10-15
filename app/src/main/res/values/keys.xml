@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="flickr_api_key">a546ea529ccc5c010579fb39f6730024</string>
+    <string name="flickr_secret">60a40160f890d516</string>
+</resources>
