@@ -5,5 +5,7 @@ package com.inmolby.flickrclient.presenter.contract;
  */
 
 public interface IHomePresenter {
-    void getPopularImages(int page,boolean isSwipeRefresh);
+    void initialImageLoading();
+    void loadMoreImages(int page);
+    void swipeRefresh();
 }

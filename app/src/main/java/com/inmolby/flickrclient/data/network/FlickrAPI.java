@@ -1,6 +1,6 @@
 package com.inmolby.flickrclient.data.network;
 
-import com.inmolby.flickrclient.data.model.BaseResponse;
+import com.inmolby.flickrclient.data.model.network.BaseResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

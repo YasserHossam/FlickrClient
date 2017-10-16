@@ -9,7 +9,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.inmolby.flickrclient.R;
-import com.inmolby.flickrclient.data.model.FlickrImage;
+import com.inmolby.flickrclient.data.model.network.FlickrImage;
+import com.inmolby.flickrclient.view.adapter.callback.AdapterToHomeCallbacks;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -29,10 +30,13 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
 
     private Context context;
 
-    public ImagesAdapter(Context context, ArrayList<FlickrImage> data) {
+    private AdapterToHomeCallbacks homeCallbacks;
+
+    public ImagesAdapter(Context context, ArrayList<FlickrImage> data,AdapterToHomeCallbacks homeCallbacks) {
         this.images = data;
         this.context = context;
         this.mInflater = LayoutInflater.from(context);
+        this.homeCallbacks=homeCallbacks;
     }
 
     @Override
@@ -56,14 +60,23 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
         @BindView(R.id.image_imageview_flickrImage) ImageView flickrImageView;
         @BindView(R.id.image_textview_title) TextView imageTitleTextView;
 
+        View view;
+
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            view=itemView;
         }
 
-        public void bind(int position) {
+        public void bind(final int position) {
             Picasso.with(context).load(images.get(position).getSmallPicture()).into(flickrImageView);
             imageTitleTextView.setText(images.get(position).getTitle());
+            flickrImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    homeCallbacks.onThumbnailClick(images.get(position));
+                }
+            });
         }
 
     }

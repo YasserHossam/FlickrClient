@@ -1,6 +1,6 @@
 package com.inmolby.flickrclient.view.contract;
 
-import com.inmolby.flickrclient.data.model.FlickrImage;
+import com.inmolby.flickrclient.data.model.network.FlickrImage;
 
 import java.util.ArrayList;
 

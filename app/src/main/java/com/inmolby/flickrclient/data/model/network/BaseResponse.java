@@ -1,4 +1,4 @@
-package com.inmolby.flickrclient.data.model;
+package com.inmolby.flickrclient.data.model.network;
 
 import com.google.gson.annotations.SerializedName;
 

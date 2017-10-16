@@ -3,7 +3,7 @@ package com.inmolby.flickrclient.data.network;
 import android.content.Context;
 import com.inmolby.flickrclient.R;
 import com.inmolby.flickrclient.data.callback.PresenterCallback;
-import com.inmolby.flickrclient.data.model.BaseResponse;
+import com.inmolby.flickrclient.data.model.network.BaseResponse;
 
 import com.inmolby.flickrclient.data.network.contract.NetworkCalls;
 import com.inmolby.flickrclient.data.network.interceptor.ConnectivityInterceptor;

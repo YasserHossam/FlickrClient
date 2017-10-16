@@ -1,21 +1,24 @@
 package com.inmolby.flickrclient.view.activity;
 
+import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import com.inmolby.flickrclient.R;
-import com.inmolby.flickrclient.data.model.FlickrImage;
+import com.inmolby.flickrclient.data.model.network.FlickrImage;
 import com.inmolby.flickrclient.presenter.HomePresenter;
 import com.inmolby.flickrclient.view.adapter.ImagesAdapter;
+import com.inmolby.flickrclient.view.adapter.callback.AdapterToHomeCallbacks;
 import com.inmolby.flickrclient.view.contract.IHomeView;
 import com.inmolby.flickrclient.view.customs.EndlessRecyclerViewScrollListener;
+import com.inmolby.flickrclient.view.fragment.FullScreenFragment;
 
 import java.util.ArrayList;
 
@@ -32,16 +35,23 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
 
     ImagesAdapter imagesAdapter;
 
-    @BindView(R.id.home_recyclerview_flickrImages) RecyclerView imagesRecyclerView;
-    @BindView(R.id.home_swipeRefreshLayout) SwipeRefreshLayout swipeRefreshLayout;
-    @BindView(R.id.home_progressbar) ProgressBar homeProgressBar;
+    HomeActivity activity;
+
+    @BindView(R.id.home_recyclerview_flickrImages)
+    RecyclerView imagesRecyclerView;
+    @BindView(R.id.home_swipeRefreshLayout)
+    SwipeRefreshLayout swipeRefreshLayout;
+    @BindView(R.id.home_progressbar)
+    ProgressBar homeProgressBar;
+    @BindView(R.id.home_framelayout_parentLayout)
+    FrameLayout parentFrameLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         ButterKnife.bind(this);
-        homePresenter = new HomePresenter(this,getApplicationContext());
+        homePresenter = new HomePresenter(this, getApplicationContext());
 
         setupRecyclerView();
 
@@ -49,22 +59,23 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
 
         setupSwipeRefreshLayout();
 
-        homePresenter.getPopularImages(1,false);
+        homePresenter.initialImageLoading();
+
+        activity = this;
     }
 
     private void setupRecyclerView() {
-        allImages=new ArrayList<>();
-        imagesRecyclerView.setLayoutManager(new GridLayoutManager(this,2));
-        imagesAdapter = new ImagesAdapter(this,allImages);
+        allImages = new ArrayList<>();
+        imagesRecyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        imagesAdapter = new ImagesAdapter(this, allImages, homeCallbacks);
         imagesRecyclerView.setAdapter(imagesAdapter);
     }
 
-    private void setupScrollListener()
-    {
+    private void setupScrollListener() {
         scrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) imagesRecyclerView.getLayoutManager()) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                homePresenter.getPopularImages(page,false);
+                homePresenter.loadMoreImages(page);
             }
         };
         imagesRecyclerView.addOnScrollListener(scrollListener);
@@ -74,16 +85,15 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                homePresenter.getPopularImages(1,true);
+                homePresenter.swipeRefresh();
             }
         });
     }
 
     @Override
     public void showImages(ArrayList<FlickrImage> newImages) {
-        int startIndex = allImages.size();
         allImages.addAll(newImages);
-        notifyInsertedItems(startIndex, newImages.size());
+        imagesRecyclerView.getAdapter().notifyDataSetChanged();
     }
 
     @Override
@@ -99,7 +109,7 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
                 .setAction("RETRY", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        homePresenter.getPopularImages(1,true);
+                        homePresenter.initialImageLoading();
                     }
                 });
         snackbar.show();
@@ -107,7 +117,9 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
 
     @Override
     public void showError(String errorMessage) {
-
+        Snackbar snackbar = Snackbar
+                .make(swipeRefreshLayout, errorMessage, Snackbar.LENGTH_LONG);
+        snackbar.show();
     }
 
     @Override
@@ -125,14 +137,28 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
         homeProgressBar.setVisibility(View.VISIBLE);
     }
 
-    private void notifyInsertedItems(int currentPosition, final int itemsCount) {
-       /* final int firstItemPosition = currentPosition;
-        imagesRecyclerView.post(new Runnable() {
-            @Override
-            public void run() {
-                imagesRecyclerView.getAdapter().notifyItemRangeInserted(firstItemPosition, itemsCount);
-            }
-        });*/
-       imagesRecyclerView.getAdapter().notifyDataSetChanged();
+    @Override
+    public void onBackPressed() {
+        if(getSupportFragmentManager().getBackStackEntryCount()>0)
+        {
+            getSupportFragmentManager().popBackStack();
+            swipeRefreshLayout.setEnabled(true);
+        }
+        else
+            super.onBackPressed();
     }
+
+    //Recycler View Adapter Callbacks
+    AdapterToHomeCallbacks homeCallbacks = new AdapterToHomeCallbacks() {
+        @Override
+        public void onThumbnailClick(FlickrImage image) {
+            swipeRefreshLayout.setEnabled(false);
+
+            FullScreenFragment fragment = FullScreenFragment.newInstance(image.getLargePicture());
+            final FragmentTransaction fragmentTransaction = activity.getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.home_framelayout_parentLayout, fragment).addToBackStack("f");
+            fragmentTransaction.commit();
+
+        }
+    };
 }
