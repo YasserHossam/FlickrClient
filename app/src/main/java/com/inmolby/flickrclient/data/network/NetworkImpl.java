@@ -1,10 +1,11 @@
 package com.inmolby.flickrclient.data.network;
 
 import android.content.Context;
+
+import com.inmolby.flickrclient.BuildConfig;
 import com.inmolby.flickrclient.R;
 import com.inmolby.flickrclient.data.callback.PresenterCallback;
 import com.inmolby.flickrclient.data.model.network.BaseResponse;
-
 import com.inmolby.flickrclient.data.network.contract.NetworkCalls;
 import com.inmolby.flickrclient.data.network.interceptor.ConnectivityInterceptor;
 
@@ -17,6 +18,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by yasser on 15/10/17.
+ * <p>
+ * this is the implementation of networking using retrofit
  */
 
 public class NetworkImpl implements NetworkCalls {
@@ -29,8 +32,7 @@ public class NetworkImpl implements NetworkCalls {
 
     private static NetworkImpl networkCalls;
 
-    private NetworkImpl(Context appContext)
-    {
+    private NetworkImpl(Context appContext) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(new ConnectivityInterceptor(appContext))
                 .build();
@@ -41,20 +43,19 @@ public class NetworkImpl implements NetworkCalls {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         flickrAPI = retrofit.create(FlickrAPI.class);
-        apiKey = appContext.getResources().getString(R.string.flickr_api_key);
+        //TODO: put the api_key in local.properties and gradle.properties
+        apiKey = BuildConfig.API_KEY;
     }
 
-    public static NetworkImpl getInstance(Context context)
-    {
-        if(networkCalls==null)
-            networkCalls=new NetworkImpl(context);
+    public static NetworkImpl getInstance(Context context) {
+        if (networkCalls == null)
+            networkCalls = new NetworkImpl(context);
         return networkCalls;
     }
 
     @Override
     public void getTrendingImages(int photosPerPage, int pageNumber, final PresenterCallback presenterCallback) {
-        Call<BaseResponse> call = flickrAPI.getPopularImages(apiKey,photosPerPage,pageNumber,FlickrAPI.JSON_FORMAT,1);
-        String s=call.request().url().url().toString();
+        Call<BaseResponse> call = flickrAPI.getPopularImages(apiKey, photosPerPage, pageNumber, FlickrAPI.JSON_FORMAT, 1);
         call.enqueue(new Callback<BaseResponse>() {
             @Override
             public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
@@ -63,7 +64,23 @@ public class NetworkImpl implements NetworkCalls {
 
             @Override
             public void onFailure(Call<BaseResponse> call, Throwable t) {
-                   presenterCallback.error(t);
+                presenterCallback.error(t);
+            }
+        });
+    }
+
+    @Override
+    public void getRecentImages(int photosPerPage, int pageNumber, final PresenterCallback presenterCallback) {
+        Call<BaseResponse> call = flickrAPI.getRecentImages(apiKey, photosPerPage, pageNumber, FlickrAPI.JSON_FORMAT, 1);
+        call.enqueue(new Callback<BaseResponse>() {
+            @Override
+            public void onResponse(Call<BaseResponse> call, Response<BaseResponse> response) {
+                presenterCallback.success(response.body().getPhotoResponse().getPhotos());
+            }
+
+            @Override
+            public void onFailure(Call<BaseResponse> call, Throwable t) {
+                presenterCallback.error(t);
             }
         });
     }

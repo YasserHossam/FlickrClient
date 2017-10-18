@@ -7,10 +7,10 @@ import io.realm.annotations.PrimaryKey;
 
 /**
  * Created by yasser on 16/10/17.
+ * The Image Model that is used by Realm to store images
  */
 
-public class RealmFlickrImage extends RealmObject
-{
+public class RealmFlickrImage extends RealmObject {
     @PrimaryKey
     private long photoID;
 
@@ -36,10 +36,9 @@ public class RealmFlickrImage extends RealmObject
         this.title = title;
     }
 
-    public RealmFlickrImage(FlickrImage flickrImage)
-    {
-        this(flickrImage.getPhotoID(),flickrImage.getOwnerId(),flickrImage.getSecret(),flickrImage.getServerID(),
-                        flickrImage.getFarmID(),flickrImage.getTitle());
+    public RealmFlickrImage(FlickrImage flickrImage) {
+        this(flickrImage.getPhotoID(), flickrImage.getOwnerId(), flickrImage.getSecret(), flickrImage.getServerID(),
+                flickrImage.getFarmID(), flickrImage.getTitle());
     }
 
     public void setPhotoID(long photoID) {

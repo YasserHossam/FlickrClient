@@ -3,15 +3,13 @@ package com.inmolby.flickrclient.data.model.network;
 import com.google.gson.annotations.SerializedName;
 import com.inmolby.flickrclient.data.model.local.RealmFlickrImage;
 
-import io.realm.RealmObject;
-import io.realm.annotations.PrimaryKey;
-
 /**
  * Created by yasser on 15/10/17.
+ * <p>
+ * The Image Model that is used by Retrofit
  */
 
-public class FlickrImage
-{
+public class FlickrImage {
     @SerializedName("id")
     private long photoID;
 
@@ -39,10 +37,9 @@ public class FlickrImage
         this.title = title;
     }
 
-    public FlickrImage(RealmFlickrImage flickrImage)
-    {
-        this(flickrImage.getPhotoID(),flickrImage.getOwnerId(),flickrImage.getSecret(),flickrImage.getServerID()
-                ,flickrImage.getFarmID(),flickrImage.getTitle());
+    public FlickrImage(RealmFlickrImage flickrImage) {
+        this(flickrImage.getPhotoID(), flickrImage.getOwnerId(), flickrImage.getSecret(), flickrImage.getServerID()
+                , flickrImage.getFarmID(), flickrImage.getTitle());
     }
 
     public long getPhotoID() {
@@ -65,23 +62,19 @@ public class FlickrImage
         return farmID;
     }
 
-    private String getUrl(char size)
-    {
-        return "https://farm1.staticflickr.com/"+serverID+"/"+photoID+"_"+secret+"_"+size+".jpg";
+    private String getUrl(char size) {
+        return "https://farm1.staticflickr.com/" + serverID + "/" + photoID + "_" + secret + "_" + size + ".jpg";
     }
 
-    public String getSmallPicture()
-    {
+    public String getSmallPicture() {
         return getUrl('m');
     }
 
-    public String getMediumPicture()
-    {
+    public String getMediumPicture() {
         return getUrl('z');
     }
 
-    public String getLargePicture()
-    {
+    public String getLargePicture() {
         return getUrl('b');
     }
 

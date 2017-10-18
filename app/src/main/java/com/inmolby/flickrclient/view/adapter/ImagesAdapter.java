@@ -20,6 +20,7 @@ import butterknife.ButterKnife;
 
 /**
  * Created by yasser on 15/10/17.
+ * an implementation of recycler view adapter that holds Flickr images
  */
 
 public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder> {
@@ -32,11 +33,11 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
 
     private AdapterToHomeCallbacks homeCallbacks;
 
-    public ImagesAdapter(Context context, ArrayList<FlickrImage> data,AdapterToHomeCallbacks homeCallbacks) {
+    public ImagesAdapter(Context context, ArrayList<FlickrImage> data, AdapterToHomeCallbacks homeCallbacks) {
         this.images = data;
         this.context = context;
         this.mInflater = LayoutInflater.from(context);
-        this.homeCallbacks=homeCallbacks;
+        this.homeCallbacks = homeCallbacks;
     }
 
     @Override
@@ -57,15 +58,17 @@ public class ImagesAdapter extends RecyclerView.Adapter<ImagesAdapter.ViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.image_imageview_flickrImage) ImageView flickrImageView;
-        @BindView(R.id.image_textview_title) TextView imageTitleTextView;
+        @BindView(R.id.image_imageview_flickrImage)
+        ImageView flickrImageView;
+        @BindView(R.id.image_textview_title)
+        TextView imageTitleTextView;
 
         View view;
 
         public ViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            view=itemView;
+            view = itemView;
         }
 
         public void bind(final int position) {

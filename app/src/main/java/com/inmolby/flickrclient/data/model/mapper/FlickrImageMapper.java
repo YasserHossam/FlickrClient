@@ -7,35 +7,31 @@ import java.util.ArrayList;
 
 /**
  * Created by yasser on 16/10/17.
- * A mapper class to map between Realm Objects and Retrofit Objects
+ * A mapper class to map between Realm models and Retrofit models
  */
 
 public class FlickrImageMapper {
-    public static FlickrImage mapToFlickrImage(RealmFlickrImage realmFlickrImage)
-    {
+    public static FlickrImage mapToFlickrImage(RealmFlickrImage realmFlickrImage) {
         return new FlickrImage(realmFlickrImage);
     }
 
-    public static RealmFlickrImage mapToRealmFlickrImage(FlickrImage flickrImage)
-    {
+    public static RealmFlickrImage mapToRealmFlickrImage(FlickrImage flickrImage) {
         return new RealmFlickrImage(flickrImage);
     }
 
-    public static ArrayList<RealmFlickrImage> mapToRealmFlickrImageArrayList(ArrayList<FlickrImage> flickrImages)
-    {
+    public static ArrayList<RealmFlickrImage> mapToRealmFlickrImageArrayList(ArrayList<FlickrImage> flickrImages) {
         ArrayList<RealmFlickrImage> realmFlickrImages = new ArrayList<>();
 
-        for(FlickrImage flickrImage:flickrImages)
+        for (FlickrImage flickrImage : flickrImages)
             realmFlickrImages.add(new RealmFlickrImage(flickrImage));
 
         return realmFlickrImages;
     }
 
-    public static ArrayList<FlickrImage> mapToFlickrImageArrayList(ArrayList<RealmFlickrImage> realmFlickrImages)
-    {
+    public static ArrayList<FlickrImage> mapToFlickrImageArrayList(ArrayList<RealmFlickrImage> realmFlickrImages) {
         ArrayList<FlickrImage> flickrImages = new ArrayList<>();
 
-        for(RealmFlickrImage realmFlickrImage:realmFlickrImages)
+        for (RealmFlickrImage realmFlickrImage : realmFlickrImages)
             flickrImages.add(new FlickrImage(realmFlickrImage));
 
         return flickrImages;

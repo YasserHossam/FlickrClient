@@ -4,6 +4,7 @@ import com.inmolby.flickrclient.data.model.network.FlickrImage;
 
 /**
  * Created by yasser on 16/10/17.
+   This interface is called by the Adapter to inform HomeActivity of any Changes
  */
 
 public interface AdapterToHomeCallbacks {

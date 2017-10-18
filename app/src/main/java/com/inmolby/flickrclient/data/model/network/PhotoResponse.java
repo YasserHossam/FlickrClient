@@ -1,7 +1,6 @@
 package com.inmolby.flickrclient.data.model.network;
 
 import com.google.gson.annotations.SerializedName;
-import com.inmolby.flickrclient.data.model.network.FlickrImage;
 
 import java.util.ArrayList;
 

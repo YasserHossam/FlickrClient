@@ -1,5 +1,9 @@
 package com.inmolby.flickrclient.view.activity;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
@@ -19,8 +23,10 @@ import com.inmolby.flickrclient.view.adapter.callback.AdapterToHomeCallbacks;
 import com.inmolby.flickrclient.view.contract.IHomeView;
 import com.inmolby.flickrclient.view.customs.EndlessRecyclerViewScrollListener;
 import com.inmolby.flickrclient.view.fragment.FullScreenFragment;
+import com.inmolby.flickrclient.view.service.UpdateImagesService;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,6 +42,8 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
     ImagesAdapter imagesAdapter;
 
     HomeActivity activity;
+
+    Snackbar loadingSnackbar;
 
     @BindView(R.id.home_recyclerview_flickrImages)
     RecyclerView imagesRecyclerView;
@@ -61,7 +69,23 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
 
         homePresenter.initialImageLoading();
 
+        setupUpdateService();
+
         activity = this;
+    }
+
+    private void setupUpdateService() {
+        //Repeat the service that fetches new data every 1 minute
+        Intent serviceIntent = new Intent(this, UpdateImagesService.class);
+        UpdateImagesService.registerCallbacks(this);
+        AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(System.currentTimeMillis());
+        calendar.add(Calendar.SECOND, 60); // first time
+        long frequency = 60 * 1000; // in ms
+        PendingIntent pendingIntent = PendingIntent.getService(this, 0, serviceIntent, 0);
+
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), frequency, pendingIntent);
     }
 
     private void setupRecyclerView() {
@@ -71,6 +95,7 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
         imagesRecyclerView.setAdapter(imagesAdapter);
     }
 
+    //Scroll listener to listen when we about to finish viewing existing images to load more images
     private void setupScrollListener() {
         scrollListener = new EndlessRecyclerViewScrollListener((GridLayoutManager) imagesRecyclerView.getLayoutManager()) {
             @Override
@@ -85,7 +110,7 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                homePresenter.swipeRefresh();
+                homePresenter.updateImages();
             }
         });
     }
@@ -138,13 +163,17 @@ public class HomeActivity extends AppCompatActivity implements IHomeView {
     }
 
     @Override
+    public void showLoadingView(String message) {
+        Snackbar.make(swipeRefreshLayout, message, Snackbar.LENGTH_LONG)
+                .show();
+    }
+
+    @Override
     public void onBackPressed() {
-        if(getSupportFragmentManager().getBackStackEntryCount()>0)
-        {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
             getSupportFragmentManager().popBackStack();
             swipeRefreshLayout.setEnabled(true);
-        }
-        else
+        } else
             super.onBackPressed();
     }
 

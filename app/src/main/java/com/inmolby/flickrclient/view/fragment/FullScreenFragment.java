@@ -49,7 +49,6 @@ public class FullScreenFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        //fullScreenProgressBar.setVisibility(View.VISIBLE);
         Picasso.with(getContext()).load(getArguments().getString(IMAGE_URL)).placeholder(R.drawable.placeholder).into(touchImageView);
     }
 }

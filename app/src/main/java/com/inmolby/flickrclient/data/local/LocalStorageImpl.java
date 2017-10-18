@@ -14,6 +14,8 @@ import io.realm.RealmResults;
 
 /**
  * Created by yasser on 16/10/17.
+ * <p>
+ * Implementation of local storage using Realm
  */
 
 public class LocalStorageImpl implements LocalStorageCalls {
@@ -55,11 +57,10 @@ public class LocalStorageImpl implements LocalStorageCalls {
             @Override
             public void execute(Realm realm) {
                 ArrayList<RealmFlickrImage> realmFlickrImages = FlickrImageMapper.mapToRealmFlickrImageArrayList(flickrImages);
-                for(RealmFlickrImage realmFlickrImage:realmFlickrImages)
+                for (RealmFlickrImage realmFlickrImage : realmFlickrImages)
                     realm.copyToRealm(realmFlickrImage);
             }
-        },new Realm.Transaction.Callback()
-        {
+        }, new Realm.Transaction.Callback() {
             @Override
             public void onSuccess() {
                 presenterCallback.success(null);

@@ -6,7 +6,7 @@ import com.inmolby.flickrclient.data.callback.PresenterCallback;
 import com.inmolby.flickrclient.data.local.LocalStorageImpl;
 import com.inmolby.flickrclient.data.model.network.FlickrImage;
 import com.inmolby.flickrclient.data.network.NetworkImpl;
-import com.inmolby.flickrclient.data.network.exception.NoConnectivityException;
+import com.inmolby.flickrclient.data.exception.NoConnectivityException;
 import com.inmolby.flickrclient.presenter.contract.IHomePresenter;
 import com.inmolby.flickrclient.view.contract.IHomeView;
 
@@ -14,6 +14,7 @@ import java.util.ArrayList;
 
 /**
  * Created by yasser on 15/10/17.
+ * Implementation of HomePresenter
  */
 
 public class HomePresenter implements IHomePresenter {
@@ -27,10 +28,10 @@ public class HomePresenter implements IHomePresenter {
     //Responsible for the interaction between presenter layer and data(localDB) layer
     LocalStorageImpl localStorage;
 
-    static final int PHOTOS_PER_PAGE = 10;
+    static final int PHOTOS_PER_PAGE = 20;
 
-    //To Check if the request sent isRetry because of the failure of the first try
-    boolean isRetry = false;
+    //This boolean is to indicate if we already fetched data from storage (for offline data)
+    boolean fetchedStorageData = false;
 
     public HomePresenter(IHomeView iHomeView, Context context) {
         this.iHomeView = iHomeView;
@@ -47,16 +48,18 @@ public class HomePresenter implements IHomePresenter {
         networkCalls.getTrendingImages(PHOTOS_PER_PAGE, page, initialImageLoadingCallback);
     }
 
-    //To Implement the Endless Scrolling
+    //To Fetch the images for the Endless Scrolling (Infinite Scrolling)
     @Override
     public void loadMoreImages(int page) {
+        iHomeView.showLoadingView("Loading more images");
         networkCalls.getTrendingImages(PHOTOS_PER_PAGE, page, loadMoreImagesCallback);
     }
 
-    //To Implement the Swipe Refresh (Pull Refresh)
+    //To Fetch the images in the Manual and Automatic update
     @Override
-    public void swipeRefresh() {
-        networkCalls.getTrendingImages(PHOTOS_PER_PAGE, 1, swipeRefreshCallback);
+    public void updateImages() {
+        iHomeView.showLoadingView("Syncing With Flickr");
+        networkCalls.getRecentImages(PHOTOS_PER_PAGE, 1, updateImagesCallback);
     }
 
     PresenterCallback<ArrayList<FlickrImage>> initialImageLoadingCallback = new PresenterCallback<ArrayList<FlickrImage>>() {
@@ -64,7 +67,6 @@ public class HomePresenter implements IHomePresenter {
         public void success(ArrayList<FlickrImage> data) {
             localStorage.clearAll();
             localStorage.storeImages(data, saveToLocalDBCallback);
-            iHomeView.clearImages();
             iHomeView.clearImages();
             iHomeView.hideProgressBar();
             iHomeView.showImages(data);
@@ -77,9 +79,9 @@ public class HomePresenter implements IHomePresenter {
                 iHomeView.showConnectionError(t.getMessage());
             } else
                 iHomeView.showError(t.getMessage());
-            if (!isRetry) {
+            if (!fetchedStorageData) {
                 localStorage.retrieveImages(retrieveLocalDataCallback);
-                isRetry=true;
+                fetchedStorageData =true;
             }
         }
     };
@@ -100,12 +102,11 @@ public class HomePresenter implements IHomePresenter {
         }
     };
 
-    PresenterCallback<ArrayList<FlickrImage>> swipeRefreshCallback = new PresenterCallback<ArrayList<FlickrImage>>() {
+    PresenterCallback<ArrayList<FlickrImage>> updateImagesCallback = new PresenterCallback<ArrayList<FlickrImage>>() {
         @Override
         public void success(ArrayList<FlickrImage> data) {
             localStorage.clearAll();
             localStorage.storeImages(data, saveToLocalDBCallback);
-            iHomeView.hideProgressBar();
             iHomeView.hideRefreshing();
             iHomeView.clearImages();
             iHomeView.showImages(data);
@@ -113,7 +114,6 @@ public class HomePresenter implements IHomePresenter {
 
         @Override
         public void error(Throwable t) {
-            iHomeView.hideProgressBar();
             iHomeView.hideRefreshing();
             if (t instanceof NoConnectivityException)
                 iHomeView.showConnectionError(t.getMessage());
