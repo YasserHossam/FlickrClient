@@ -5,17 +5,16 @@ After you download the project please add your flickr API_KEY in local.propertie
 
 ```
 API_KEY = "YOUR_API_KEY"
-
 ```
 
 
-##Dependencies 
-Retrofit
-Gson
-Picasso
-ButterKnife
-Realm
-TouchImageView
+##Dependencies
+1. Retrofit
+2. Gson
+3. Picasso
+4. ButterKnife
+5. Realm
+6.TouchImageView
 
 I’m following clean code architecture, you can see the description [here](https://medium.com/@abozaid/android-clean-code-architecture-751b719e0063#.oh9v4e9ce)
 ,[here](https://medium.com/@dmilicic/a-detailed-guide-on-developing-android-apps-using-the-clean-architecture-pattern-d38d71e94029#.lrh6vgpxk)
